@@ -1,0 +1,6 @@
+requires 'Dancer2';
+requires 'Dancer2::Plugin::OpenTelemetry';
+requires 'OpenTelemetry', '0.026';
+requires 'OpenTelemetry::SDK';
+requires 'OpenTelemetry::Exporter::OTLP';
+requires 'Net::Async::HTTP::Server';

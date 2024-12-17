@@ -1,0 +1,41 @@
+#!/usr/bin/env perl
+use Mojolicious::Lite -signatures;
+
+use OpenTelemetry::SDK;
+use OpenTelemetry::Instrumentation 'DBI';
+use Mojo::SQLite;
+
+plugin 'OpenTelemetry';
+
+helper sql => sub { state $sql = Mojo::SQLite->new };
+
+app->sql->migrations->name('santa')->from_string(<<'EOF')->migrate;
+-- 1 up
+create table naughty (id integer unique, naughty bool);
+-- 1 down
+drop table naughty;
+EOF
+
+get '/is-naughty/:id' => sub ($c) {
+    my $id = $c->param('id');
+    my $db = app->sql->db;
+
+    # If we have a value for this ID, return it
+
+    my $row = $db
+      ->select( naughty => ['naughty'] => { id => $id } )
+      ->hashes
+      ->first;
+
+    return $c->render( json => { naughty => $row->{naughty} } ) if $row;
+
+    # Otherwise, generate one and store it before returning
+
+    my $naughty = !!( int rand 2 );
+
+    $db->insert( naughty => { id => $id, naughty => $naughty } );
+
+    $c->render( json => { naughty => $naughty } );
+};
+
+app->start;

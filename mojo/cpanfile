@@ -1,0 +1,7 @@
+requires 'IO::Async::Loop::Mojo';
+requires 'Mojo::SQLite';
+requires 'Mojolicious';
+requires 'Mojolicious::Plugin::OpenTelemetry';
+requires 'OpenTelemetry', '0.026'; # For OTel:Instrumentation namespace
+requires 'OpenTelemetry::Exporter::OTLP';
+requires 'OpenTelemetry::SDK';

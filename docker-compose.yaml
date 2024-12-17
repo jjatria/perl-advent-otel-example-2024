@@ -1,0 +1,37 @@
+services:
+  naught-or-not:
+    build:
+      context: mojo
+    container_name: naught-or-not
+    volumes:
+    - ./mojo:/app
+    command:
+    - hypnotoad
+    - ./server
+    - --foreground
+    environment:
+      LOG_ANY_ADAPTER: Stderr
+      IO_ASYNC_LOOP: Mojo
+      OTEL_BSP_MAX_EXPORT_BATCH_SIZE: 1
+      OTEL_SERVICE_NAME: naught-or-not
+      OTEL_TRACES_EXPORTER: otlp
+    network_mode: host
+
+  gifts:
+    build:
+      context: dancer
+    container_name: gifts
+    volumes:
+    - ./dancer:/app
+    command:
+    - plackup
+    - --server
+    - Net::Async::HTTP::Server
+    - ./server.psgi
+    environment:
+      LOG_ANY_ADAPTER: Stderr
+      NAUGHT_OR_NOT_HOST: http://localhost:8080
+      OTEL_BSP_MAX_EXPORT_BATCH_SIZE: 1
+      OTEL_SERVICE_NAME: gifts
+      OTEL_TRACES_EXPORTER: otlp
+    network_mode: host
